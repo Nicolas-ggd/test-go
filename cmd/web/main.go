@@ -3,14 +3,26 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/thedevsaddam/renderer"
 )
 
+var rnd *renderer.Render
+
+func init() {
+	opts := renderer.Options{
+		ParseGlobPattern: "../../ui/html/*.html",
+	}
+
+	rnd = renderer.New(opts)
+}
+
 func homeDir(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello"))
+	rnd.HTML(w, http.StatusOK, "home", nil)
 }
 
 func aboutDir(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("This is about..."))
+	rnd.HTML(w, http.StatusOK, "about", nil)
 }
 
 func main() {
