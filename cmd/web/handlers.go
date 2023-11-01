@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"test.nicolas.net/pkg/models"
@@ -28,7 +27,7 @@ func (app *application) signInDir(res http.ResponseWriter, req *http.Request) {
 }
 
 func (app *application) signUpDir(res http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(res, "Display a HTML form for signing up a new user...")
+	rnd.HTML(res, http.StatusOK, "signup", nil)
 }
 
 func (app *application) signUpDirPost(res http.ResponseWriter, req *http.Request) {
