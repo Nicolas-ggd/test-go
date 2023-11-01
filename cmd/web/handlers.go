@@ -27,7 +27,10 @@ func (app *application) signInDir(res http.ResponseWriter, req *http.Request) {
 }
 
 func (app *application) signUpDir(res http.ResponseWriter, req *http.Request) {
-	rnd.HTML(res, http.StatusOK, "signup", nil)
+	data := app.newTemplateData(req)
+	data.Form = userSignupForm{}
+
+	rnd.HTML(res, http.StatusOK, "signup", data)
 }
 
 func (app *application) signUpDirPost(res http.ResponseWriter, req *http.Request) {
@@ -45,7 +48,9 @@ func (app *application) signUpDirPost(res http.ResponseWriter, req *http.Request
 	form.CheckFields(validator.MinChars(form.Password, 6), "password", "Password must be at least 6 characters long")
 
 	if !form.Valid() {
-		rnd.HTML(res, http.StatusOK, "signup", nil)
+		data := app.newTemplateData(req)
+		data.Form = form
+		rnd.HTML(res, http.StatusOK, "signup", form)
 		return
 	}
 
@@ -54,7 +59,9 @@ func (app *application) signUpDirPost(res http.ResponseWriter, req *http.Request
 		if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email address is already in used")
 
-			rnd.HTML(res, http.StatusOK, "signup", nil)
+			data := app.newTemplateData(req)
+			data.Form = form
+			rnd.HTML(res, http.StatusOK, "signup", data)
 		} else {
 			app.serverError(res, err)
 		}

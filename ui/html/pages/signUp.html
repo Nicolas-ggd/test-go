@@ -36,6 +36,13 @@
       margin-top: 5px;
       margin-bottom: 5px;
     }
+    .form-flex {
+      display: flex;
+      justify-content: space-between;
+    }
+    .label-error {
+      color: red;
+    }
   </style>
   <body class="d-flex align-items-center py-4 bg-body-tertiary">
     <main class="form-signin w-100 main-form-controller">
@@ -43,28 +50,24 @@
         <h1 class="h3 mb-3 fw-normal">Please sign up</h1>
 
         <div class="form-floating form-input-floating">
-            <label for="floatingInput">Name</label>
-            <input
-                type="text"
-                class="form-control"
-                id="floatingInput"
-                placeholder="Your name..."
-                name="name"
-            />
-          </div>
-
-        <div class="form-floating form-input-floating">
           <label for="floatingInput">Email address</label>
+          {{with .Form.FieldErrors.email}}
+            <label class="label-error">{{.}}</label>
+          {{end}}
           <input
             type="email"
             class="form-control"
             id="floatingInput"
             placeholder="name@example.com"
             name="email"
+            value="{{.Form.Email}}"
           />
         </div>
         <div class="form-floating form-input-floating">
           <label for="floatingPassword">Password</label>
+          {{with .Form.FieldErrors.password}}
+            <label class="label-error">{{.}}</label>
+          {{end}}
           <input
             type="password"
             class="form-control"
@@ -75,30 +78,38 @@
         </div>
 
         <div class="form-floating form-input-floating">
-            <label for="floatingPassword">Confirm Password</label>
-            <input
-              type="password"
-              class="form-control"
-              id="floatingConfirmPassword"
-              placeholder="Confirm Password"
-              name="confirmPassword"
-            />
-          </div>
-
-        <div class="form-check text-start my-3">
+          <label for="floatingPassword">Confirm Password</label>
+          {{with .Form.FieldErrors.confirmPassword}}
+            <label class="label-error">{{.}}</label>
+          {{end}}
           <input
-            class="form-check-input"
-            type="checkbox"
-            value="remember-me"
-            id="flexCheckDefault"
+            type="password"
+            class="form-control"
+            id="floatingConfirmPassword"
+            placeholder="Confirm Password"
+            name="confirmPassword"
           />
-          <label class="form-check-label" for="flexCheckDefault">
-            Remember me
-          </label>
         </div>
-        <input value="Register user" class="btn btn-primary w-100 py-2" type="submit">
-          Sign in
-        </button>
+
+        <div class="form-check text-start my-3 form-flex">
+          <div class="">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              value="remember-me"
+              id="flexCheckDefault"
+            />
+            <label class="form-check-label" for="flexCheckDefault">
+              Remember me
+            </label>
+          </div>
+          <a>Already have a account?</a>
+        </div>
+        <input
+          value="Register user"
+          class="btn btn-primary w-100 py-2"
+          type="submit"
+        />
       </form>
     </main>
 

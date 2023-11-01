@@ -18,6 +18,7 @@ import (
 var rnd *renderer.Render
 
 type application struct {
+	debug          bool
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	formDecoder    *form.Decoder
