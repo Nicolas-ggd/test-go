@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/justinas/nosurf"
 )
 
 func secureHeaders(next http.Handler) http.Handler {
@@ -47,5 +50,62 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 			}
 		}()
 		next.ServeHTTP(res, req)
+	})
+}
+
+func noSurf(next http.Handler) http.Handler {
+	csrfHandler := nosurf.New(next)
+	csrfHandler.SetBaseCookie(http.Cookie{
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   true,
+	})
+
+	return csrfHandler
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+
+		if id == 0 {
+			next.ServeHTTP(w, r)
+
+			return
+		}
+
+		exists, err := app.users.UserExists(id)
+		if err != nil {
+			app.serverError(w, err)
+
+			return
+		}
+
+		if exists {
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// check if user is authenticated or not, return from the middleware
+		// chain so that no subsequent handlers in the cain are executed.
+		if !app.isAuthenticated(r) {
+			app.sessionManager.Put(r.Context(), "redirectPathAfterLogin", r.URL.Path)
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
+		}
+
+		// Otherwise set the "Cache-Control: no-store" header so that pages
+		// require authentication are not stored in the users browser cache (or
+		// other intermediary cache).
+		w.Header().Add("Cache-Control", "no-store")
+
+		// call next hanlder in the chain
+		next.ServeHTTP(w, r)
 	})
 }
